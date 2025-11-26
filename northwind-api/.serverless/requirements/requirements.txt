@@ -1,0 +1,5 @@
+Flask==2.3.3
+aws-lambda-wsgi==0.0.6
+marshmallow==3.19.0
+pynamodb==6.0.1
+python-dateutil==2.8.2

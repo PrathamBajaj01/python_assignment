@@ -1,0 +1,51 @@
+{
+  "source_file": "sample_stored_procedure.sql",
+  "object_type": "FUNCTION",
+  "object_name": "sales.get_customer_orders",
+  "parameters": [
+    {
+      "name": "p_customer_id",
+      "mode": "",
+      "datatype": "INT",
+      "default": null
+    },
+    {
+      "name": "p_status",
+      "mode": "",
+      "datatype": "VARCHAR",
+      "default": "'ACTIVE'"
+    }
+  ],
+  "returns": "TABLE",
+  "leading_comments": "",
+  "tables": [
+    "sales.customers",
+    "sales.orders"
+  ],
+  "select_columns": [
+    "c.customer_name",
+    "o.amount",
+    "o.order_date",
+    "o.order_id"
+  ],
+  "queries": [
+    {
+      "sql": "INSERT INTO sales.customers (customer_name, email, created_at, last_accessed)",
+      "length": 77
+    },
+    {
+      "sql": "INSERT INTO sales.orders (customer_id, order_date, amount, status, notes)",
+      "length": 73
+    },
+    {
+      "sql": "SELECT o.order_id,\n         o.order_date,\n         o.amount,\n         c.customer_name\n  FROM sales.orders o\n  JOIN sales.customers c ON o.customer_id = c.id\n  WHERE o.customer_id = p_customer_id\n    AND o.status = COALESCE(p_status, 'ACTIVE')\n  ORDER BY o.order_date DESC",
+      "length": 271
+    },
+    {
+      "sql": "UPDATE sales.customers\n  SET last_accessed = now()\n  WHERE id = p_customer_id",
+      "length": 77
+    }
+  ],
+  "body_excerpt": "(\n  order_id INT,\n  order_date TIMESTAMP WITH TIME ZONE,\n  amount NUMERIC,\n  customer_name TEXT\n)\nLANGUAGE sql\nAS $$\n  SELECT o.order_id,\n         o.order_date,\n         o.amount,\n         c.customer_name\n  FROM sales.orders o\n  JOIN sales.customers c ON o.customer_id = c.id\n  WHERE o.customer_id = p_customer_id\n    AND o.status = COALESCE(p_status, 'ACTIVE')\n  ORDER BY o.order_date DESC;\n$$;\n\n\nCREATE OR REPLACE PROCEDURE sales.update_customer_last_access(p_customer_id INT)\nLANGUAGE plpgsql\nAS $$\nBEGIN\n  UPDATE sales.customers\n  SET last_accessed = now()\n  WHERE id = p_customer_id;\nEND;\n$$;",
+  "full_body_length": 597
+}

@@ -1,0 +1,106 @@
+service: northwind-api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.11
+  region: us-east-1
+  stage: dev
+  environment:
+   
+    CUSTOMERS_TABLE: ${self:service}-${self:provider.stage}-Customers
+    PRODUCTS_TABLE: ${self:service}-${self:provider.stage}-Products
+    ORDERS_TABLE: ${self:service}-${self:provider.stage}-Orders
+
+functions:
+  app:
+    handler: handler.lambda_handler
+    timeout: 30
+    memorySize: 512
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+      - httpApi:
+          path: /
+          method: ANY
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    slim: true
+    zip: true
+    useDownloadCache: false
+    useStaticCache: false
+package:
+  exclude:
+
+    - ".venv/**"
+    - ".venv_sam/**"
+    - ".venv_win/**"
+    - ".venv/**"
+    - ".git/**"
+    - ".github/**"
+    - ".vscode/**"
+    - "tests/**"
+    - "docs/**"
+    - "**/__pycache__/**"
+    - "**/*.pyc"
+    - "**/*.pyo"
+    - "**/*.dist-info/**"
+    - "**/*.egg-info/**"
+    - "**/*.whl"
+    - "**/tests/**"
+    - "**/examples/**"
+    - ".serverless/**"
+ 
+
+resources:
+  Resources:
+    CustomersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.CUSTOMERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: customer_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: customer_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    ProductsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.PRODUCTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: product_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: product_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.ORDERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: order_id
+            AttributeType: S
+          - AttributeName: customer_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: order_id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: customerId-index
+            KeySchema:
+              - AttributeName: customer_id
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST

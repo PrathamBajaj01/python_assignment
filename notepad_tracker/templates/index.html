@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Notepad Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; display: flex; height: 100vh; }
+    #sidebar { width: 340px; border-right: 1px solid #ddd; padding: 12px; box-sizing: border-box; }
+    #editor-wrap { flex: 1; display: flex; flex-direction: column; }
+    textarea { flex: 1; width: 100%; resize: none; padding: 16px; font-family: monospace; font-size: 14px; border: none; outline: none; box-sizing: border-box; }
+    input[type="text"] { width: 100%; padding: 8px; margin-bottom: 8px; box-sizing: border-box; }
+    button { padding: 8px 12px; margin-right: 6px; }
+    #status { height: 28px; padding: 6px 8px; font-size: 13px; color: #555; }
+    .small { font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar">
+    <h3>Notepad Tracker</h3>
+
+    <label>File name (without extension)</label>
+    <input id="filename" type="text" placeholder="todo" />
+
+    <div>
+      <button id="loadBtn">Load / Create</button>
+      <button id="saveBtn">Save</button>
+    </div>
+
+    <p class="small">Default folder: <span id="defaultDir"></span></p>
+
+    <div id="status">Idle</div>
+  </div>
+
+  <div id="editor-wrap">
+    <textarea id="editor" placeholder="Start typing..."></textarea>
+  </div>
+
+  <script>
+    const editor = document.getElementById('editor');
+    const statusEl = document.getElementById('status');
+    const filenameInput = document.getElementById('filename');
+    const loadBtn = document.getElementById('loadBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const defaultDirEl = document.getElementById('defaultDir');
+
+    let currentFilename = "";
+    let saveTimeout = null;
+    const DELAY = 1200;
+
+    function setStatus(t) { statusEl.textContent = t; }
+
+    async function init() {
+      const r = await fetch('/meta');
+      const j = await r.json();
+      if (j.ok) defaultDirEl.textContent = j.default_dir;
+    }
+
+    async function loadFile() {
+      const filename = filenameInput.value.trim();
+      setStatus('Loading...');
+      const res = await fetch('/load', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename })
+      });
+      const j = await res.json();
+      if (!j.ok) { setStatus('Error'); return; }
+      editor.value = j.content || "";
+      currentFilename = filename || "note";
+      setStatus('Loaded');
+    }
+
+    async function saveFile() {
+      const filename = filenameInput.value.trim() || currentFilename || "note";
+      setStatus('Saving...');
+      const res = await fetch('/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename, content: editor.value })
+      });
+      const j = await res.json();
+      if (!j.ok) setStatus('Error');
+      else setStatus('Saved');
+    }
+
+    function autosave() {
+      if (saveTimeout) clearTimeout(saveTimeout);
+      setStatus('Typing...');
+      saveTimeout = setTimeout(saveFile, DELAY);
+    }
+
+    editor.addEventListener('input', autosave);
+    loadBtn.addEventListener('click', loadFile);
+    saveBtn.addEventListener('click', saveFile);
+
+    init();
+  </script>
+
+</body>
+</html>

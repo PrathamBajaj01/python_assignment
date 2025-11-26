@@ -1,0 +1,52 @@
+{
+  "cols": [
+    "name",
+    "email",
+    "postalZip",
+    "phone",
+    "country",
+    "address"
+  ],
+  "data": [
+    [
+      "John Doe",
+      "john.doe@company.com",
+      "12345",
+      "(816) 530-4269",
+      "USA",
+      "123 Elm Street"
+    ],
+    [
+      "Alice Brown",
+      "alice.b@abc.org",
+      "AB-9876",
+      "1-811-920-9732",
+      "Canada",
+      "55 Maple Ave"
+    ],
+    [
+      "Michael Smith",
+      "m.smith@workmail.net",
+      56001,
+      "987 654 3210",
+      "USA",
+      "45 Park Lane"
+    ],
+    [
+      "Priya Sharma",
+      "priya.s@domain.in",
+      "89A76",
+      "+91 98765 43210",
+      "India",
+      "Plot 34, Green Valley"
+    ],
+    [
+      "David Wilson",
+      "dwilson@xyz.com",
+      "00987",
+      "(123)-45-6789",
+      "UK",
+      "7 High Street"
+    ]
+  ]
+}

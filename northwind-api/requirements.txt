@@ -1,0 +1,17 @@
+# Flask==2.3.3
+# pynamodb==6.0.1
+# marshmallow==3.19.0
+# boto3>=1.26,<2
+# pytest==7.4.0
+# moto[server]==4.2.0
+# pytest-mock==3.11.0
+# python-dateutil==2.8.2
+
+
+# aws-lambda-wsgi==0.0.6
+
+Flask==2.3.3
+pynamodb==6.0.1
+marshmallow==3.19.0
+python-dateutil==2.8.2
+aws-lambda-wsgi==0.0.6
