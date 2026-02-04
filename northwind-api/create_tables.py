@@ -19,10 +19,9 @@ models = [CustomerModel, ProductModel, OrderModel]
 
 for m in models:
     try:
-        # PynamoDB provides exists() / create_table()
+       
         if not m.exists():
             logger.info("Creating table: %s", m.Meta.table_name)
-            # tune throughput for local testing
             m.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
             logger.info("Created table: %s", m.Meta.table_name)
         else:

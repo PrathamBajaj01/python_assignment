@@ -1,4 +1,4 @@
-#!/var/lang/bin/python
+#!C:\Users\Public\DG ASSIGNMENTS\PYTHON ASSIGNMENT\northwind-api\.venv\Scripts\python.exe
 
 import sys
 import json

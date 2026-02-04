@@ -6,11 +6,27 @@ provider:
   runtime: python3.11
   region: us-east-1
   stage: dev
+
   environment:
-   
     CUSTOMERS_TABLE: ${self:service}-${self:provider.stage}-Customers
     PRODUCTS_TABLE: ${self:service}-${self:provider.stage}-Products
     ORDERS_TABLE: ${self:service}-${self:provider.stage}-Orders
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:UpdateItem
+            - dynamodb:Scan
+            - dynamodb:Query
+          Resource:
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.CUSTOMERS_TABLE}
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.PRODUCTS_TABLE}
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.ORDERS_TABLE}
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.ORDERS_TABLE}/index/*
 
 functions:
   app:
@@ -18,45 +34,30 @@ functions:
     timeout: 30
     memorySize: 512
     events:
-      - httpApi:
+      - http:
           path: /{proxy+}
           method: ANY
-      - httpApi:
-          path: /
-          method: ANY
+          cors: true
+
 
 plugins:
   - serverless-python-requirements
 
 custom:
   pythonRequirements:
-    dockerizePip: true
+    dockerizePip: false
     slim: true
-    zip: true
-    useDownloadCache: false
-    useStaticCache: false
-package:
-  exclude:
 
-    - ".venv/**"
-    - ".venv_sam/**"
-    - ".venv_win/**"
-    - ".venv/**"
-    - ".git/**"
-    - ".github/**"
-    - ".vscode/**"
-    - "tests/**"
-    - "docs/**"
-    - "**/__pycache__/**"
-    - "**/*.pyc"
-    - "**/*.pyo"
-    - "**/*.dist-info/**"
-    - "**/*.egg-info/**"
-    - "**/*.whl"
-    - "**/tests/**"
-    - "**/examples/**"
-    - ".serverless/**"
- 
+package:
+  patterns:
+    - "!tests/**"
+    - "!docs/**"
+    - "!.venv/**"
+    - "!.git/**"
+    - "!.github/**"
+    - "!.vscode/**"
+    - "!**/__pycache__/**"
+    - "!**/*.pyc"
 
 resources:
   Resources:

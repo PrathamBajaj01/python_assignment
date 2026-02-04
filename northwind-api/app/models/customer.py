@@ -15,7 +15,7 @@ class CustomerModel(Model):
         if DDB_ENDPOINT:
             host = DDB_ENDPOINT
 
-    # attribute names are snake_case in code; DynamoDB attribute names will match these
+    
     customer_id = UnicodeAttribute(hash_key=True)
     company_name = UnicodeAttribute(null=False)
     contact_name = UnicodeAttribute(null=True)
